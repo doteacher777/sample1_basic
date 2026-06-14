@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>청소당번 추첨기</title>
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at top left,#60a5fa 0%,transparent 35%),
+        radial-gradient(circle at bottom right,#a855f7 0%,transparent 35%),
+        linear-gradient(135deg,#0f172a,#1e293b);
+}
+
+.glass-card{
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,0.15);
+    box-shadow:0 20px 50px rgba(0,0,0,0.25);
+}
+
+.student-card{
+    transition:.3s;
+}
+
+.student-card:hover{
+    transform:translateY(-5px) scale(1.05);
+}
+
+.number-badge{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.8rem;
+    font-weight:700;
+    background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+    color:white;
+    box-shadow:0 10px 20px rgba(59,130,246,.4);
+}
+</style>
+</head>
+
+<body class="d-flex justify-content-center align-items-center p-4">
+
+<div class="glass-card rounded-5 p-5 text-center text-white w-100"
+     style="max-width:900px;">
+
+    <div class="mb-4">
+        <i class="bi bi-stars text-warning fs-1"></i>
+        <h1 class="fw-bold mt-2">3학년3반 청소당번 추첨기</h1>
+        <p class="text-light opacity-75">
+            1번 ~ 30번 중 랜덤으로 5명을 뽑을게요
+        </p>
+    </div>
+
+    <button
+        id="drawBtn"
+        class="btn btn-lg btn-warning px-5 py-3 fw-bold shadow">
+        <i class="bi bi-shuffle me-2"></i>
+        당번 뽑기
+    </button>
+
+    <div class="mt-5">
+        <h4 class="fw-semibold mb-4">
+            <i class="bi bi-person-check-fill text-success"></i>
+            선발 결과
+        </h4>
+
+        <div id="resultArea"
+             class="row justify-content-center g-3">
+        </div>
+    </div>
+
+</div>
+
+<script>
+const drawBtn = document.getElementById('drawBtn');
+const resultArea = document.getElementById('resultArea');
+
+drawBtn.addEventListener('click', async () => {
+
+    await Swal.fire({
+        title: '추첨 중...',
+        html: '청소당번을 선발하고 있습니다.',
+        timer: 2000,
+        timerProgressBar: true,
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    const students = Array.from(
+        {length:30},
+        (_,i)=>i+1
+    );
+
+    for(let i=students.length-1;i>0;i--){
+        const j=Math.floor(Math.random()*(i+1));
+        [students[i],students[j]] =
+        [students[j],students[i]];
+    }
+
+    const selected = students
+        .slice(0,5)
+        .sort((a,b)=>a-b);
+
+    renderResult(selected);
+
+    Swal.fire({
+        icon:'success',
+        title:'청소당번 선발 완료!',
+        html:`
+            <div style="font-size:1.3rem;">
+                ${selected.map(n=>`${n}번`).join(' · ')}
+            </div>
+        `,
+        confirmButtonText:'확인',
+        confirmButtonColor:'#3b82f6'
+    });
+});
+
+function renderResult(selected){
+
+    resultArea.innerHTML='';
+
+    selected.forEach((num,index)=>{
+
+        resultArea.innerHTML += `
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="student-card glass-card rounded-4 p-3 h-100">
+
+                    <div class="number-badge mx-auto mb-3">
+                        ${num}
+                    </div>
+
+                    <div class="fw-bold text-white">
+                        ${num}번
+                    </div>
+
+                    <small class="text-light opacity-75">
+                        청소당번
+                    </small>
+
+                </div>
+            </div>
+        `;
+    });
+}
+</script>
+
+</body>
+</html>
